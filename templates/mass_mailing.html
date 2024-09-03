@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mass Mailing Form</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+  <div class="navbar">
+    <a href="{{ url_for('index') }}">Guest Management</a>
+    <a href="{{ url_for('mass_mailing_bp.mass_mailing') }}">Mass Mailing</a>
+    <a href="{{ url_for('notification_time') }}">Notification Settings</a>
+  </div>
+
+  <div class="container">
+    <h1 class="text-center">Send Mass Mailing</h1>
+    <div class="form-container">
+     
+      <form method="POST">
+        <div class="form-group">
+          <label for="subject">
+            <i class="fa-solid fa-pencil-alt"></i> Subject:
+          </label>
+          <input type="text" id="subject" name="subject" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label for="message">
+            <i class="fa-solid fa-envelope-open-text"></i> Message:
+          </label>
+          <textarea id="message" name="message" class="form-control" rows="4" required></textarea>
+        </div>
+
+        <div class="form-group text-center">
+          <input type="submit" value="Send Announcement" class="btn-primary">
+        </div>
+      </form>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="alert alert-success">
+            <ul>
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+  
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

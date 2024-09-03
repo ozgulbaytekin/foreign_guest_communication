@@ -1,0 +1,11 @@
+{
+    "reminder_days": {
+        "Reminder 1": 15,
+        "Reminder 2": 30,
+        "Reminder 3": 60
+    },
+    "notification_time": "10:05 AM",
+    "emails": [
+        "ozgulbaytekin@outlook.com"
+    ]
+}

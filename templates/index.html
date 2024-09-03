@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Include date-fns library -->
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.30.0/dist/date-fns.min.js"></script>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{{ url_for('index') }}">Guest Management</a>
+        <a href="{{ url_for('mass_mailing_bp.mass_mailing') }}">Mass Mailing</a>
+        <a href="{{ url_for('notification_time') }}">Notification Settings</a>
+    </div>
+
+    <div class="container">
+        <div class="container">
+            <h1 class="text-center">Manage Guest Information</h1>
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="alert alert-success">
+                <ul>
+                    {% for message in messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% endwith %}
+        </div>
+        
+        <!-- New record form -->
+        <div class="form-container">
+            <form id="newGuestForm">
+                <h2 class="text">New Record</h2>
+                <div>
+                    <label for="name">
+                        <i class="fa-solid fa-user"></i> Name:
+                    </label><br>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div>
+                    <label for="surname">
+                        <i class="fa-solid fa-user-tag"></i> Surname:
+                    </label><br>
+                    <input type="text" id="surname" name="surname" required>
+                </div>
+                <div>
+                    <label for="email">
+                        <i class="fa-solid fa-envelope"></i> Email:
+                    </label><br>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div>
+                    <label for="expiration_date">
+                        <i class="fa-solid fa-calendar-days"></i> Expiration Date (y/m/d):
+                    </label><br>
+                    <input type="text" id="expiration_date" name="expiration_date" required placeholder="yyyy/mm/dd">
+                </div>
+                <button type="submit" class="btn-primary">Add Guest</button>
+            </form>
+        </div>
+
+        <!-- Guest Records Table -->
+        <div class="table-container">
+            <div class="container">
+                <h1 class="text-center">Guest Records</h1> 
+                <table id="guestTable">
+                    <thead>
+                        <tr>
+                            <th><i class="fa-solid fa-user"></i> Name</th>
+                            <th><i class="fa-solid fa-user-tag"></i> Surname</th>
+                            <th><i class="fa-solid fa-envelope"></i> Email</th>
+                            <th><i class="fa-solid fa-calendar-days"></i> Expiration Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for guest in guests %}
+                        <tr data-guest-id="{{ guest.id }}">
+                            <td><span class="editable">{{ guest.name }}</span></td>
+                            <td><span class="editable">{{ guest.surname }}</span></td>
+                            <td><span class="editable">{{ guest.email }}</span></td>
+                            <td><span class="editable">{{ guest.expiration_date }}</span></td>
+                            <td>
+                                <button type="button" class="edit-btn btn-primary">Edit</button>
+                                <button type="button" class="save-btn btn-primary" style="display:none;">Save</button>
+                                <form action="{{ url_for('delete_guest', guest_id=guest.id) }}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>                        
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
