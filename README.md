@@ -9,7 +9,7 @@ The Foreign Guest Reminder System is a web application designed to manage and se
 - **Guest Management:** Add, edit, and delete guest records.
 - **Mass Mailing:** Send announcements to all guests listed in the system.
 
-## Installation
+## INSTALLATION
 
 ### Prerequisites:
 - Python 3.6 or higher
@@ -23,7 +23,7 @@ The Foreign Guest Reminder System is a web application designed to manage and se
 pip install -r requirements.txt
 ```
 
-## Running the Application:
+## RUNNING THE APPLICATION:
 ### 1-) Without Docker
 Start the Flask application:
 
@@ -53,5 +53,5 @@ Send Notifications: Configure notification settings to manage when reminders are
 Send mass mail: Make announcement to the recorded email addresses from the guests.json file.
 
 
-##CONTACT
+## CONTACT
 For any questions or issues, please contact Ozgul Baytekin.
