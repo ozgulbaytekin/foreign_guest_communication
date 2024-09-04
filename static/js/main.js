@@ -11,9 +11,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const newReminderDayDiv = document.createElement('div');
         newReminderDayDiv.classList.add('reminder-day');
         newReminderDayDiv.innerHTML = `
-            <label>Reminder ${reminderCount}:</label>
+            <label> <i class="fa-solid fa-calendar-days"></i>Reminder ${reminderCount}:</label>
             <input type="number" name="reminder_days[]" min="1" required class="large-input">
-            <span>days before expiration</span>
         `;
         reminderDaysContainer.appendChild(newReminderDayDiv);
     }
@@ -25,6 +24,19 @@ document.addEventListener('DOMContentLoaded', function () {
             addReminderDayInput();
         });
     }
+
+    // Reset the reminder days to only one input field when the page is reloaded
+    function resetReminderDays() {
+        const reminderDays = reminderDaysContainer.querySelectorAll('.reminder-day');
+        reminderDays.forEach((reminder, index) => {
+            if (index > 0) {
+                reminder.remove();
+            }
+        });
+    }
+
+    // Call the reset function when the page is loaded
+    resetReminderDays();
 
     // Guest table and form elements
     const table = document.getElementById('guestTable');
