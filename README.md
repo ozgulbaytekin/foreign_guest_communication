@@ -20,3 +20,34 @@ The Foreign Guest Reminder System is a web application designed to manage and se
 ### Install Dependencies:
 ```bash
 pip install -r requirements.txt
+'''
+
+## Running the Application:
+### 1-) Without Docker
+Start the Flask application:
+'''bash
+python app.py
+'''
+Access the application at http://localhost:5004.
+### 2-) With Docker
+Build and run the Docker container:
+'''bash
+docker-compose up --build
+'''
+
+## CONFIGURATION
+Email Settings: Configure your email settings in the .env file for sending notifications.
+Flask Secret Key: Update Flask secret key using flask_secret_key.py.
+
+
+
+## USAGE
+Add Guest: Use the form to add new guest records.
+Edit Guest: Edit existing guest records from the table.
+Delete Guest: Remove guest records as needed.
+Send Notifications: Configure notification settings to manage when reminders are sent.
+Send mass mail: Make announcement to the recorded email addresses from the guests.json file.
+
+
+##CONTACT
+For any questions or issues, please contact Ozgul Baytekin.
