@@ -18,22 +18,22 @@ The Foreign Guest Reminder System is a web application designed to manage and se
 - A GitHub account (for version control and repository management)
 
 ### Install Dependencies:
-```bash
+''''''
 pip install -r requirements.txt
-'''
+''''''
 
 ## Running the Application:
 ### 1-) Without Docker
 Start the Flask application:
-'''bash
+''''''
 python app.py
-'''
+''''''
 Access the application at http://localhost:5004.
 ### 2-) With Docker
 Build and run the Docker container:
-'''bash
+''''''
 docker-compose up --build
-'''
+''''''
 
 ## CONFIGURATION
 Email Settings: Configure your email settings in the .env file for sending notifications.
