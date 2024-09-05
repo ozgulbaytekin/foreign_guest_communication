@@ -372,14 +372,7 @@ if __name__ == '__main__':
     settings = load_notification_settings()
     schedule_time = settings.get('notification_time', '12:00')  # Default to '12:00' in 24-hour format if not set
 
-    # Validate the time format
-    if re.match(r'^\d{2}:\d{2}$', schedule_time):
-        try:
-            schedule.every().day.at(schedule_time).do(schedule_reminders)
-        except schedule.ScheduleValueError as e:
-            print(f"Invalid time format in schedule: {e}")
-    else:
-        print(f"Invalid time format provided: {schedule_time}. It should be in 'HH:MM' format.")
+
 
     # Start the scheduler in a new thread
     scheduler_thread = threading.Thread(target=run_scheduler)
