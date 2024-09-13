@@ -13,10 +13,35 @@ load_dotenv()
 mass_mailing_bp = Blueprint('mass_mailing_bp', __name__)
 
 GUESTS_FILE_PATH = 'guests.json'
+NOTIFICATION_SETTINGS_FILE_PATH = 'notification_settings.json'
+
+def load_notification_settings():
+    """Load notification settings from a JSON file, ensuring all expected keys are present."""
+    try:
+        with open(NOTIFICATION_SETTINGS_FILE_PATH, 'r') as f:
+            settings = json.load(f)
+            # Ensure all required keys are present, using defaults if missing
+            
+            if 'smtp_email' not in settings:
+                settings['smtp_email'] = ''  # Default to empty if not set
+            if 'smtp_password' not in settings:
+                settings['smtp_password'] = ''  # Default to empty if not set
+            return settings
+    except FileNotFoundError:
+        # Handle the case where the file is not found
+        return {'notification_time': '12:00', 'reminder_days': {}, 'smtp_email': '', 'smtp_password': ''}
+    except json.JSONDecodeError:
+        # Handle JSON decode error
+        return {'notification_time': '12:00', 'reminder_days': {}, 'smtp_email': '', 'smtp_password': ''}
 
 def send_mass_email(subject, message):
-    sender_email = os.getenv("EMAIL_ADDRESS")
-    password = os.getenv("EMAIL_PASSWORD")
+    settings = load_notification_settings()
+    sender_email = settings.get("smtp_email")
+    password = settings.get("smtp_password")
+
+    if not sender_email:
+        print("SMTP email is not set in notification_settings.json")
+        return
 
     msg = MIMEMultipart()
     msg['From'] = sender_email
@@ -30,14 +55,27 @@ def send_mass_email(subject, message):
         guest_email = guest['email']
         msg['To'] = guest_email
 
+        if sender_email.endswith('@gmail.com'):
+            smtp_server = 'smtp.gmail.com'
+            smtp_port = 587
+        elif sender_email.endswith('@outlook.com') or sender_email.endswith('@hotmail.com'):
+            smtp_server = 'smtp.office365.com'
+            smtp_port = 587
+        else:
+            print("Unsupported email domain.")
+            return
+
         try:
-            with smtplib.SMTP('smtp.gmail.com', 587) as server:
-                server.starttls()  # Upgrade to secure connection
+            print(f"Connecting to SMTP server {smtp_server}...")
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.starttls()
                 server.login(sender_email, password)
                 server.send_message(msg)
-            print(f"Announcement sent to {guest_email}.")
+            print(f"Email sent to {guest_email}.")
+        except smtplib.SMTPAuthenticationError as e:
+            print(f"Authentication error: {e}")
         except smtplib.SMTPException as e:
-            print(f"Failed to send announcement to {guest_email}: {e}")
+            print(f"Failed to send email to {guest_email}: {e}")
 
 def load_guests():
     if os.path.exists(GUESTS_FILE_PATH):
