@@ -1,11 +1,13 @@
 {
     "reminder_days": {
-        "Reminder 1": 15,
+        "Reminder 1": 10,
         "Reminder 2": 30,
         "Reminder 3": 60
     },
-    "notification_time": "10:05 AM",
+    "notification_time": "09:33 PM",
     "emails": [
-        "ozgulbaytekin@outlook.com"
-    ]
+        "added email addresses"
+    ],
+    "smtp_email": "added email address from the form",
+    "smtp_password": "added email pssword from the form"
 }
