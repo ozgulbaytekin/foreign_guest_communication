@@ -27,82 +27,108 @@
             {% endwith %}
         </div>
 
-        <!-- Form to update notification time -->
-        <div class="form-container">
-            <form id="notification_time" method="POST" action="{{ url_for('notification_time') }}">
-                <label for="notification_time">
-                    <i class="fa-solid fa-clock"></i> Set Notification Time (HH:MM AM/PM):
-                </label>
-                <input type="text" id="notification_time" name="notification_time" required placeholder="hh:mm AM/PM" pattern="^(0[1-9]|1[0-2]):[0-5][0-9] [APap][Mm]$" title="Enter time in HH:MM AM/PM format">
-                <button type="submit" class="btn btn-primary">Update Time</button>
-            </form>
-        </div>
+        <!-- Layout container for forms and table -->
+        <div class="flex-container">
+            <!-- Forms container -->
+            <div class="form-container">
+                <!-- Form to update notification time -->
+<div class="form-section">
+    <form id="notification_time" method="POST" action="{{ url_for('notification_time') }}">
+        <label for="notification_time">
+            <i class="fa-solid fa-clock"></i> Set Notification Time (HH:MM AM/PM):
+        </label>
+        <input type="text" id="notification_time" name="notification_time" required placeholder="hh:mm AM/PM" pattern="^(0[1-9]|1[0-2]):[0-5][0-9] [APap][Mm]$" title="Enter time in HH:MM AM/PM format">
+        <button type="submit" class="btn btn-primary">Update Time</button>
+    </form>
+</div>
 
-        <!-- Form to update custom notification days -->
-        <div class="form-container">
-            <form id="update_notification_days" method="POST" action="{{ url_for('update_notification_days') }}">
-                <h2>Set Custom Notification Days Before Expiration</h2>
-                <div id="reminderDaysContainer">
-                    <!-- Reminder day inputs will be injected here -->
-                    {% for reminder, days in settings.reminder_days.items() %}
-                        <div class="reminder-day">
-                            <label>
-                                <i class="fa-solid fa-calendar-days"></i> Reminder {{ loop.index }}:
-                            </label>
-                            <input type="number" name="reminder_days[]" min="1" required>
+
+      <!-- Form to set SMTP settings (Email and Password) -->
+      <div class="form-section">
+        <form id="smtpForm" method="POST" action="{{ url_for('set_smtp_settings') }}">
+            <h2>Set SMTP Email Settings</h2>
+            <label for="smtp_email"><i class="fa-solid fa-envelope"></i> SMTP Email Address:</label>
+            <input type="email" id="smtp_email" name="smtp_email" required>
+            
+            <label for="smtp_password"><i class="fa-solid fa-lock"></i> SMTP Email Password:</label>
+            <input type="password" id="smtp_password" name="smtp_password" required>
+
+            <button type="submit" class="btn btn-primary">Update SMTP Settings</button>
+        </form>
+    </div>
+
+
+                <!-- Form to update custom notification days -->
+                <div class="form-section">
+                    <form id="update_notification_days" method="POST" action="{{ url_for('update_notification_days') }}">
+                        <h2>Set Custom Notification Days Before Expiration</h2>
+                        <div id="reminderDaysContainer">
+                            <!-- Reminder day inputs will be injected here -->
+                            {% for reminder, days in settings.reminder_days.items() %}
+                                <div class="reminder-day">
+                                    <label>
+                                        <i class="fa-solid fa-calendar-days"></i> Reminder {{ loop.index }}:
+                                    </label>
+                                    <input type="number" name="reminder_days[]" min="1" required>
+                                </div>
+                            {% endfor %}
                         </div>
-                    {% endfor %}
+                        <button type="button" class="btn btn-secondary" id="addReminderDay">Add Another Reminder Day</button>
+                        <button type="submit" class="btn btn-primary">Update Notification Days</button>
+                    </form>
                 </div>
-                <button type="button" class="btn btn-secondary" id="addReminderDay">Add Another Reminder Day</button>
-                <button type="submit" class="btn btn-primary">Update Notification Days</button>
-            </form>
-        </div>
 
-        <div class="form-container">
-            <form id="emailForm" action="{{ url_for('add_email') }}" method="POST">
-                <label for="newEmail">
-                    <i class="fa-solid fa-envelope"></i> Add Notification Email:
-                </label>
-                <input type="email" id="newEmail" name="newEmail" required>
-                <button type="submit">Add Email</button>
-            </form>
-        </div>
+                <!-- Form to add email -->
+                <div class="form-section">
+                    <form id="emailForm" action="{{ url_for('add_email') }}" method="POST">
+                        <label for="newEmail">
+                            <i class="fa-solid fa-envelope"></i> Add Notification Email:
+                        </label>
+                        <input type="email" id="newEmail" name="newEmail" required>
+                        <button type="submit" class="btn btn-primary">Add Email</button>
+                    </form>
+                </div>
+            </div>
 
-        <!-- Display current settings in a table -->
-        <div class="form-container">
-            <h2>Current Notification Settings</h2>
-            <table class="settings-table">
-                <thead>
-                    <tr>
-                        <th>Setting</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <i class="fa-solid fa-clock"></i> Notification Time
-                        </td>
-                        <td>{{ settings.notification_time }}</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <i class="fa-solid fa-calendar-days"></i> Reminder Days
-                        </td>
-                        <td>
-                            {% if settings.reminder_days %}
-                                <ul>
-                                    {% for reminder, days in settings.reminder_days.items() %}
-                                        <li>{{ days }} days before expiration</li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                No reminder days set
-                            {% endif %}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <!-- Table container -->
+            <div class="table-container">
+                <!-- Display current settings in a table -->
+                 
+                <label class="settings-label"><i class="fa-solid fa-cogs" ></i> Current Notification Settings</label>
+
+                <table class="settings-table">
+                    <thead>
+                        <tr>
+                            <th>Setting</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <i class="fa-solid fa-clock"></i> Notification Time
+                            </td>
+                            <td>{{ settings.notification_time }}</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <i class="fa-solid fa-calendar-days"></i> Reminder Days
+                            </td>
+                            <td>
+                                {% if settings.reminder_days %}
+                                    <ul>
+                                        {% for reminder, days in settings.reminder_days.items() %}
+                                            <li>{{ days }} days before expiration</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    No reminder days set
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     
