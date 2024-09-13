@@ -1,3 +1,4 @@
+/* Background image for the body */
 body {
     background-image: url('../images/background.jpg');
     background-size: cover;
@@ -56,6 +57,50 @@ body {
     color: #ffffff;
 }
 
+/********** Flexbox Container for Forms and Table **********/
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px; /* Space between form and table */
+}
+
+/* Ensure the form container takes 40% of the width */
+.form-container {
+    flex: 1 1 40%;
+    max-width: 40%;
+}
+
+/* Ensure the table container takes 60% of the width */
+.table-container {
+    flex: 1 1 60%;
+    max-width: 60%;
+}
+
+/* Make the table full width within its container */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Ensure that the form container has no extra margin or padding */
+.form-container {
+    margin: 0;
+    padding: 0;
+}
+
+/* Responsive behavior for small screens */
+@media (max-width: 768px) {
+    .flex-container {
+        flex-direction: column;
+        gap: 10px; /* Reduce space between form and table */
+    }
+
+    .form-container, .table-container {
+        max-width: 100%;
+    }
+}
+
 /********** Form Styles **********/
 .container {
     display: flex;
@@ -103,6 +148,7 @@ textarea {
     height: 300px;
     resize: vertical;
 }
+
 .text-center {
     background-color: rgba(255, 255, 255, 0.8); /* Light background with some transparency */
     color: #132a42; /* Darker text color for better contrast */
@@ -111,7 +157,6 @@ textarea {
     display: inline-block; /* Ensure the background only covers the text */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Optional: add a subtle shadow for better visibility */
 }
-
 
 /* Center the submit button */
 .form-group.text-center {
@@ -243,4 +288,23 @@ label i {
     width: 100%;
     padding: 0.5rem;
     box-sizing: border-box;
+}
+/* Container to align the add reminder day button and email form side by side */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px; /* Space between the button and email form */
+}
+
+/* Style for the email form */
+.email-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* Adjust form control width if needed */
+.email-form input[type="email"] {
+    width: auto; /* Adjust width as necessary */
 }
