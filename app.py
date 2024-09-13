@@ -27,13 +27,7 @@ GUESTS_FILE_PATH = 'guests.json'
 NOTIFICATION_SETTINGS_FILE_PATH = 'notification_settings.json'
 
 
-def parse_time_12_to_24(time_str):
-    """Convert 12-hour time format (HH:MM AM/PM) to 24-hour format (HH:MM)."""
-    try:
-        return datetime.strptime(time_str, "%I:%M %p").strftime("%H:%M")
-    except ValueError as e:
-        logging.error("Error parsing time: %s", e)
-        return None
+
     
 
 
@@ -58,7 +52,6 @@ def add_email():
     return redirect(url_for('notification_time'))
 
 
-
 def load_notification_settings():
     """Load notification settings from a JSON file, ensuring all expected keys are present."""
     try:
@@ -69,18 +62,17 @@ def load_notification_settings():
                 settings['notification_time'] = '12:00'  # Default to '12:00' if not set
             if 'reminder_days' not in settings:
                 settings['reminder_days'] = {}  # Default to empty dictionary if not set
+            if 'smtp_email' not in settings:
+                settings['smtp_email'] = ''  # Default to empty if not set
+            if 'smtp_password' not in settings:
+                settings['smtp_password'] = ''  # Default to empty if not set
             return settings
     except FileNotFoundError:
         # Handle the case where the file is not found
-        return {'notification_time': '12:00', 'reminder_days': {}}  # Default values
+        return {'notification_time': '12:00', 'reminder_days': {}, 'smtp_email': '', 'smtp_password': ''}
     except json.JSONDecodeError:
         # Handle JSON decode error
-        return {'notification_time': '12:00', 'reminder_days': {}}  # Default values
-
-
-
-
-
+        return {'notification_time': '12:00', 'reminder_days': {}, 'smtp_email': '', 'smtp_password': ''}
 
 def save_notification_settings(settings):
     """Save notification settings to the JSON file."""
@@ -97,9 +89,33 @@ def save_notification_settings(settings):
 
 
 
+@app.route('/set_smtp_settings', methods=['POST'])
+def set_smtp_settings():
+    smtp_email = request.form['smtp_email']
+    smtp_password = request.form['smtp_password']
+
+    # Load the current notification settings
+    settings = load_notification_settings()
+
+    # Store SMTP email and password in the notification settings
+    settings['smtp_email'] = smtp_email
+    settings['smtp_password'] = smtp_password
+
+    # Save the updated settings
+    save_notification_settings(settings)
+
+    flash('SMTP settings updated successfully!')
+    return redirect(url_for('notification_time'))
+
+# Update send_email function to use dynamic SMTP credentials
 def send_email(to_email, subject, message):
-    sender_email = os.getenv("EMAIL_ADDRESS")
-    password = os.getenv("EMAIL_PASSWORD")
+    settings = load_notification_settings()
+    sender_email = settings.get("smtp_email")
+    password = settings.get("smtp_password")
+
+    if not sender_email or not password:
+        print("SMTP email or password is not set.")
+        return
 
     msg = MIMEMultipart()
     msg['From'] = sender_email
@@ -108,6 +124,7 @@ def send_email(to_email, subject, message):
 
     msg.attach(MIMEText(message, 'plain'))
 
+    # Determine the SMTP server and port based on the email domain
     if sender_email.endswith('@gmail.com'):
         smtp_server = 'smtp.gmail.com'
         smtp_port = 587
@@ -119,13 +136,17 @@ def send_email(to_email, subject, message):
         return
 
     try:
+        print(f"Connecting to SMTP server {smtp_server}...")
         with smtplib.SMTP(smtp_server, smtp_port) as server:
             server.starttls()
             server.login(sender_email, password)
             server.send_message(msg)
         print(f"Email sent to {to_email}.")
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"Authentication error: {e}")
     except smtplib.SMTPException as e:
         print(f"Failed to send email to {to_email}: {e}")
+
 
 
 
@@ -141,6 +162,9 @@ def load_guests():
             return []
     return []
 
+
+
+
 def save_guests(data):
     """Save guest data to a JSON file."""
     try:
@@ -150,6 +174,9 @@ def save_guests(data):
     except Exception as e:
         print(f"Error saving guests data: {e}")
 
+
+
+
 def schedule_reminders():
     """Schedule reminders based on the guest data and notification settings."""
     settings = load_notification_settings()
@@ -157,7 +184,7 @@ def schedule_reminders():
     additional_emails = settings.get('emails', [])
     guests = load_guests()
     now = datetime.now()
-    admin_email = os.getenv("EMAIL_ADDRESS")
+    admin_email = settings.get("smtp_email")  # Retrieve admin email from settings
 
     logging.info("Running schedule_reminders at %s", now.strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -181,7 +208,8 @@ def schedule_reminders():
                     send_email(guest_email, f"{days_before} Days Reminder", f"Dear {guest_full_name}, your permit will expire in {days_before} days!")
                     
                     # Send email to admin
-                    send_email(admin_email, f"Admin Notification: {days_before} Days Reminder", f"{guest_full_name}'s permit will expire in {days_before} days.")
+                    if admin_email:  # Check if admin email is set
+                        send_email(admin_email, f"Admin Notification: {days_before} Days Reminder", f"{guest_full_name}'s permit will expire in {days_before} days.")
                     
                     # Send email to additional email addresses
                     for additional_email in additional_emails:
@@ -191,6 +219,7 @@ def schedule_reminders():
                                   reminder_name, now.date(), reminder_date.date())
         except ValueError as e:
             logging.error("Error parsing date for %s: %s", guest_full_name, e)
+
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -307,6 +336,8 @@ def delete_guest(guest_id):
 def notification_time():
     if request.method == 'POST':
         notification_time = request.form['notification_time']
+        print(f"Received time: {notification_time}")  # Debug: log the received time
+        
         try:
             update_scheduler_time(notification_time)
             flash('Notification time updated successfully!')
@@ -317,6 +348,43 @@ def notification_time():
     current_notification_time = notification_settings.get('notification_time', '12:00')  # Default to '12:00' if not set
 
     return render_template('notification_settings.html', settings=notification_settings, notification_time=current_notification_time)
+
+def update_scheduler_time(time_str):
+    # Validate the time format with a regex for HH:MM AM/PM
+    if not re.match(r'^(0[1-9]|1[0-2]):([0-5][0-9]) [APap][Mm]$', time_str):
+        raise ValueError("Invalid time format. Expected HH:MM AM/PM")
+
+    settings = load_notification_settings()
+    settings['notification_time'] = time_str  # Store in HH:MM AM/PM format
+    save_notification_settings(settings)
+    
+    # Convert to 24-hour format for scheduling (server-side)
+    time_24 = parse_time_12_to_24(time_str)
+    if not time_24:
+        raise ValueError("Invalid time format during conversion")
+
+    # Restart the schedule with the new time
+    schedule.clear()
+    schedule_time = f"{time_24}:00"
+    schedule.every().day.at(schedule_time).do(schedule_reminders)
+
+    logging.info("Scheduler updated with new time: %s", schedule_time)
+
+# Helper function to convert from 12-hour to 24-hour format
+def parse_time_12_to_24(time_str):
+    match = re.match(r'^(0[1-9]|1[0-2]):([0-5][0-9]) ([APap][Mm])$', time_str)
+    if not match:
+        return None
+
+    hours, minutes, period = match.groups()
+    hours = int(hours)
+    if period.upper() == 'PM' and hours != 12:
+        hours += 12
+    elif period.upper() == 'AM' and hours == 12:
+        hours = 0
+    return f"{hours:02}:{minutes}"
+
+    
 
 
 @app.route('/update_notification_days', methods=['GET','POST'])
@@ -337,26 +405,6 @@ def update_notification_days():
 
     return redirect(url_for('notification_time'))
 
-def update_scheduler_time(time_str):
-    # Validate the time format (optional, but recommended)
-    if not re.match(r'^(0[1-9]|1[0-2]):[0-5][0-9] [APap][Mm]$', time_str):
-        raise ValueError("Invalid time format. Expected HH:MM AM/PM")
-
-    settings = load_notification_settings()
-    settings['notification_time'] = time_str  # Store in HH:MM AM/PM format
-    save_notification_settings(settings)
-    
-    # Convert to 24-hour format for scheduling
-    time_24 = parse_time_12_to_24(time_str)
-    if not time_24:
-        raise ValueError("Invalid time format during conversion")
-
-    # Restart the schedule with the new time
-    schedule.clear()
-    schedule_time = f"{time_24}:00"
-    schedule.every().day.at(schedule_time).do(schedule_reminders)
-
-    logging.info("Scheduler updated with new time: %s", schedule_time)
 
 
 
@@ -372,7 +420,14 @@ if __name__ == '__main__':
     settings = load_notification_settings()
     schedule_time = settings.get('notification_time', '12:00')  # Default to '12:00' in 24-hour format if not set
 
-
+    # Validate the time format
+    if re.match(r'^\d{2}:\d{2}$', schedule_time):
+        try:
+            schedule.every().day.at(schedule_time).do(schedule_reminders)
+        except schedule.ScheduleValueError as e:
+            print(f"Invalid time format in schedule: {e}")
+    else:
+        print(f"Invalid time format provided: {schedule_time}. It should be in 'HH:MM' format.")
 
     # Start the scheduler in a new thread
     scheduler_thread = threading.Thread(target=run_scheduler)
