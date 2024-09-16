@@ -53,6 +53,10 @@ def send_mass_email(subject, message):
 
     for guest in guests:
         guest_email = guest['email']
+        msg = MIMEMultipart()  # Create a new message object for each guest
+        msg['From'] = sender_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(message, 'plain'))
         msg['To'] = guest_email
 
         if sender_email.endswith('@gmail.com'):
