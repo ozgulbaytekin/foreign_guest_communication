@@ -4,109 +4,124 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guest Management</title>
+    <!-- Include Bootstrap CSS from CDN -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <!-- Include date-fns library -->
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.30.0/dist/date-fns.min.js"></script>
-
-   
 </head>
 <body>
-    <div class="navbar">
-        <a href="{{ url_for('index') }}">Guest Management</a>
-        <a href="{{ url_for('mass_mailing_bp.mass_mailing') }}">Mass Mailing</a>
-        <a href="{{ url_for('notification_time') }}">Notification Settings</a>
-    </div>
-
-    <div class="container">
-        <div class="container">
-            <h1 class="text-center">Manage Guest Information</h1>
-
-            {% with messages = get_flashed_messages() %}
-            {% if messages %}
-            <div class="alert alert-success">
-                <ul>
-                    {% for message in messages %}
-                    <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
-            {% endwith %}
+    <!-- Use Bootstrap Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('index') }}">Guest Management</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('mass_mailing_bp.mass_mailing') }}">Mass Mailing</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('notification_time') }}">Notification Settings</a>
+                </li>
+            </ul>
         </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Manage Guest Information</h1>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="alert alert-success">
+            <ul>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        {% endwith %}
 
         <!-- Flexbox container for form and table -->
-        <div class="flex-container">
+        <div class="row">
             <!-- New record form -->
-            <div class="form-container">
-                <form id="newGuestForm" method="POST">
-                    <h2 class="text">NEW RECORD</h2>
-                    <div>
-                        <label for="name">
-                            <i class="fa-solid fa-user"></i> Name:
-                        </label><br>
-                        <input type="text" id="name" name="name" required>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">NEW RECORD</h2>
+                        <form id="newGuestForm" method="POST">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">
+                                    <i class="fa-solid fa-user"></i> Name:
+                                </label>
+                                <input type="text" id="name" name="name" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="surname" class="form-label">
+                                    <i class="fa-solid fa-user-tag"></i> Surname:
+                                </label>
+                                <input type="text" id="surname" name="surname" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="fa-solid fa-envelope"></i> Email:
+                                </label>
+                                <input type="email" id="email" name="email" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="expiration_date" class="form-label">
+                                    <i class="fa-solid fa-calendar-days"></i> Expiration Date (y/m/d):
+                                </label>
+                                <input type="text" id="expiration_date" name="expiration_date" class="form-control" required placeholder="yyyy/mm/dd">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Guest</button>
+                        </form>
                     </div>
-                    <div>
-                        <label for="surname">
-                            <i class="fa-solid fa-user-tag"></i> Surname:
-                        </label><br>
-                        <input type="text" id="surname" name="surname" required>
-                    </div>
-                    <div>
-                        <label for="email">
-                            <i class="fa-solid fa-envelope"></i> Email:
-                        </label><br>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div>
-                        <label for="expiration_date">
-                            <i class="fa-solid fa-calendar-days"></i> Expiration Date (y/m/d):
-                        </label><br>
-                        <input type="text" id="expiration_date" name="expiration_date" required placeholder="yyyy/mm/dd">
-                    </div>
-                    <button type="submit" class="btn-primary">Add Guest</button>
-                </form>
+                </div>
             </div>
 
             <!-- Guest Records Table -->
-            <div class="table-container">
-                <div class="container">
-                    <h1 class="text-center">Guest Records</h1> 
-                    <table id="guestTable">
-                        <thead>
-                            <tr>
-                                <th><i class="fa-solid fa-user"></i> Name</th>
-                                <th><i class="fa-solid fa-user-tag"></i> Surname</th>
-                                <th><i class="fa-solid fa-envelope"></i> Email</th>
-                                <th><i class="fa-solid fa-calendar-days"></i> Expiration Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for guest in guests %}
-                            <tr data-guest-id="{{ guest.id }}">
-                                <td><span class="editable">{{ guest.name }}</span></td>
-                                <td><span class="editable">{{ guest.surname }}</span></td>
-                                <td><span class="editable">{{ guest.email }}</span></td>
-                                <td><span class="editable">{{ guest.expiration_date }}</span></td>
-                                <td>
-                                    <button type="button" class="edit-btn btn-primary">Edit</button>
-                                    <button type="button" class="save-btn btn-primary" style="display:none;">Save</button>
-                                    <form action="{{ url_for('delete_guest', guest_id=guest.id) }}" method="post" style="display:inline;">
-                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                    </form>                        
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Guest Records</h2>
+                        <table class="table table-striped" id="guestTable">
+                            <thead>
+                                <tr>
+                                    <th><i class="fa-solid fa-user"></i> Name</th>
+                                    <th><i class="fa-solid fa-user-tag"></i> Surname</th>
+                                    <th><i class="fa-solid fa-envelope"></i> Email</th>
+                                    <th><i class="fa-solid fa-calendar-days"></i> Expiration Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for guest in guests %}
+                                <tr data-guest-id="{{ guest.id }}">
+                                    <td><span class="editable">{{ guest.name }}</span></td>
+                                    <td><span class="editable">{{ guest.surname }}</span></td>
+                                    <td><span class="editable">{{ guest.email }}</span></td>
+                                    <td><span class="editable">{{ guest.expiration_date }}</span></td>
+                                    <td>
+                                        <button type="button" class="edit-btn btn btn-warning">Edit</button>
+                                        <button type="button" class="save-btn btn btn-success" style="display:none;">Save</button>
+                                        <form action="{{ url_for('delete_guest', guest_id=guest.id) }}" method="post" style="display:inline;">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>                        
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Include Bootstrap JS and dependencies from CDN -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
