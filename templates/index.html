@@ -4,29 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guest Management</title>
-    <!-- Include Bootstrap CSS from CDN -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    <!-- Include date-fns library -->
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.30.0/dist/date-fns.min.js"></script>
 </head>
 <body>
-    <!-- Use Bootstrap Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{{ url_for('index') }}">Guest Management</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('mass_mailing_bp.mass_mailing') }}">Mass Mailing</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('notification_time') }}">Notification Settings</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <div class="navbar">
+        <img src="{{ url_for('static', filename='images/background.jpg') }}" alt="Logo" class="logo">
+        <a href="{{ url_for('index') }}">Guest Management</a>
+        <a href="{{ url_for('mass_mailing_bp.mass_mailing') }}">Mass Mailing</a>
+        <a href="{{ url_for('notification_time') }}">Notification Settings</a>
+    </div>
 
     <div class="container mt-4">
         <h1 class="text-center mb-4">Manage Guest Information</h1>
@@ -44,9 +33,9 @@
         {% endwith %}
 
         <!-- Flexbox container for form and table -->
-        <div class="row">
+        <div class="flex-container">
             <!-- New record form -->
-            <div class="col-md-6">
+            <div class="form-container">
                 <div class="card">
                     <div class="card-body">
                         <h2 class="card-title">NEW RECORD</h2>
@@ -82,7 +71,7 @@
             </div>
 
             <!-- Guest Records Table -->
-            <div class="col-md-6">
+            <div class="table-container">
                 <div class="card">
                     <div class="card-body">
                         <h2 class="card-title">Guest Records</h2>
@@ -120,7 +109,6 @@
         </div>
     </div>
 
-    <!-- Include Bootstrap JS and dependencies from CDN -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
