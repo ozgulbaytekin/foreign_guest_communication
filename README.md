@@ -40,7 +40,8 @@ docker-compose up --build
 ```
 
 ## CONFIGURATION
-Email Settings: Configure admin email settings in the notification settings tab for sending perodical notifiactions and mass mails. You can add extra email addresses to send the expiratioon notification email.
+Email Settings: Configure admin email settings in the notification settings tab for sending perodical notifiactions and mass mails. You can add extra email addresses to send the expiratioon notification email and mass mails for announcments.
+
 Flask Secret Key: Update Flask secret key using flask_secret_key.py.
 
 
