@@ -15,6 +15,7 @@
 
 <body>
   <div class="navbar">
+    <img src="{{ url_for('static', filename='images/background.jpg') }}" alt="Logo" class="logo">
     <a href="{{ url_for('index') }}">Guest Management</a>
     <a href="{{ url_for('mass_mailing_bp.mass_mailing') }}">Mass Mailing</a>
     <a href="{{ url_for('notification_time') }}">Notification Settings</a>
