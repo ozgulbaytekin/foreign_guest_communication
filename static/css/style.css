@@ -1,10 +1,8 @@
-/* Background image for the body */
+/* Background color for the body */
 body {
-    background-image: url('../images/background.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-color: #ffffff; /* White background */
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
 }
 
 /********** Navbar Styles **********/
@@ -51,10 +49,34 @@ body {
     left: 1rem;
 }
 
-.navbar-brand h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #ffffff;
+/* Navbar logo size */
+.navbar-brand img {
+    max-height: 20px; /* Make the logo much smaller */
+    width: auto; /* Maintain aspect ratio */
+}
+
+
+/********** Email Form and Add Reminder Day Button **********/
+.email-form-container {
+    position: absolute;
+    top: 70px; /* Adjust as needed to be under the navbar */
+    left: 1rem;
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.email-form-container .form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.email-form-container .email-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 /********** Flexbox Container for Forms and Table **********/
@@ -289,6 +311,7 @@ label i {
     padding: 0.5rem;
     box-sizing: border-box;
 }
+
 /* Container to align the add reminder day button and email form side by side */
 .form-actions {
     display: flex;
