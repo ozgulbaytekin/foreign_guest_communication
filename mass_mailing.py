@@ -21,43 +21,37 @@ def load_notification_settings():
         with open(NOTIFICATION_SETTINGS_FILE_PATH, 'r') as f:
             settings = json.load(f)
             # Ensure all required keys are present, using defaults if missing
-            
             if 'smtp_email' not in settings:
                 settings['smtp_email'] = ''  # Default to empty if not set
             if 'smtp_password' not in settings:
                 settings['smtp_password'] = ''  # Default to empty if not set
+            if 'emails' not in settings:
+                settings['emails'] = []  # Default to empty list if not set
             return settings
     except FileNotFoundError:
-        # Handle the case where the file is not found
-        return {'notification_time': '12:00', 'reminder_days': {}, 'smtp_email': '', 'smtp_password': ''}
+        return {'notification_time': '12:00', 'reminder_days': {}, 'smtp_email': '', 'smtp_password': '', 'emails': []}
     except json.JSONDecodeError:
-        # Handle JSON decode error
-        return {'notification_time': '12:00', 'reminder_days': {}, 'smtp_email': '', 'smtp_password': ''}
+        return {'notification_time': '12:00', 'reminder_days': {}, 'smtp_email': '', 'smtp_password': '', 'emails': []}
 
 def send_mass_email(subject, message):
     settings = load_notification_settings()
     sender_email = settings.get("smtp_email")
     password = settings.get("smtp_password")
+    notification_emails = settings.get("emails", [])
 
     if not sender_email:
         print("SMTP email is not set in notification_settings.json")
         return
 
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['Subject'] = subject
-
-    msg.attach(MIMEText(message, 'plain'))
-
     guests = load_guests()
+    recipient_emails = notification_emails + [guest['email'] for guest in guests]
 
-    for guest in guests:
-        guest_email = guest['email']
-        msg = MIMEMultipart()  # Create a new message object for each guest
+    for recipient_email in recipient_emails:
+        msg = MIMEMultipart()
         msg['From'] = sender_email
         msg['Subject'] = subject
         msg.attach(MIMEText(message, 'plain'))
-        msg['To'] = guest_email
+        msg['To'] = recipient_email
 
         if sender_email.endswith('@gmail.com'):
             smtp_server = 'smtp.gmail.com'
@@ -75,11 +69,11 @@ def send_mass_email(subject, message):
                 server.starttls()
                 server.login(sender_email, password)
                 server.send_message(msg)
-            print(f"Email sent to {guest_email}.")
+            print(f"Email sent to {recipient_email}.")
         except smtplib.SMTPAuthenticationError as e:
             print(f"Authentication error: {e}")
         except smtplib.SMTPException as e:
-            print(f"Failed to send email to {guest_email}: {e}")
+            print(f"Failed to send email to {recipient_email}: {e}")
 
 def load_guests():
     if os.path.exists(GUESTS_FILE_PATH):
