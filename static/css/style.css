@@ -6,7 +6,7 @@ body {
 }
 
 /********** Navbar Styles **********/
-.navbar {
+body .navbar {
     background-color: #132a42;
     padding: 1rem;
     color: white;
