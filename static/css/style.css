@@ -188,6 +188,23 @@ textarea {
 #saveButton {
     display: none;
 }
+form button.btn-primary {
+    background-color: #5e7d9e;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.25rem;
+    margin-top: 1rem;
+    display: inline-block;
+    text-align: center;
+}
+
+form button.btn-primary:hover {
+    background-color: #365577;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
 
 button, .btn-primary {
     background-color: #5e7d9e;
@@ -286,7 +303,7 @@ tr:hover {
     }
 
     .table-container {
-        max-width: 100%;
+        max-width: 100%;    
     }
 
     table {
