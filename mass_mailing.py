@@ -53,14 +53,18 @@ def send_mass_email(subject, message):
         msg.attach(MIMEText(message, 'plain'))
         msg['To'] = recipient_email
 
+        # Determine the SMTP server and port based on the sender's email domain
         if sender_email.endswith('@gmail.com'):
             smtp_server = 'smtp.gmail.com'
             smtp_port = 587
         elif sender_email.endswith('@outlook.com') or sender_email.endswith('@hotmail.com'):
             smtp_server = 'smtp.office365.com'
             smtp_port = 587
+        elif sender_email.endswith('@tersan.com.tr'):  # Add custom domain support
+            smtp_server = 'smtp.tersan.com.tr'  # Replace with actual SMTP server for tersan.com.tr
+            smtp_port = 587  # Replace with the correct port for TLS or SSL if needed
         else:
-            print("Unsupported email domain.")
+            print(f"Unsupported email domain for {sender_email}.")
             return
 
         try:
@@ -75,6 +79,7 @@ def send_mass_email(subject, message):
         except smtplib.SMTPException as e:
             print(f"Failed to send email to {recipient_email}: {e}")
 
+            
 def load_guests():
     if os.path.exists(GUESTS_FILE_PATH):
         try:
