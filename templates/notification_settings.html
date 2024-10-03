@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notification Settings</title>
 
-    <!-- Link to your local style.css file -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
     
     <!-- Bootstrap CSS CDN -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
@@ -16,14 +15,26 @@
 </head>
 <body>
     <!-- Updated navbar -->
-    <div class="navbar">
-        <img src="{{ url_for('static', filename='images/background.jpg') }}" alt="Logo" class="logo">
-        <a href="{{ url_for('index') }}">Guest Management</a>
-        <a href="{{ url_for('mass_mailing_bp.mass_mailing') }}">Mass Mailing</a>
-        <a href="{{ url_for('notification_time') }}">Notification Settings</a>
-    </div>
-    
-    <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='images/background.jpg') }}" alt="Logo" class="logo" style="width: 50px;">
+        </a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('index') }}">Guest Management</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('mass_mailing_bp.mass_mailing') }}">Mass Mailing</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('notification_time') }}">Notification Settings</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
         <h1 class="text-center">Notification Settings</h1>
         <div>
             {% with messages = get_flashed_messages() %}
@@ -38,126 +49,138 @@
         </div>
 
         <!-- Layout container for forms and table -->
-        <div class="flex-container">
+        <div class="row">
             <!-- Forms container -->
-            <div class="form-container">
-                <!-- Form to update notification time -->
-                <div class="form-section">
-                    <form id="notification_time" method="POST" action="{{ url_for('notification_time') }}">
-                        <label for="notification_time">
-                            <i class="fa-solid fa-clock"></i> Set Notification Time (HH:MM AM/PM):
-                        </label>
-                        <input type="text" id="notification_time" name="notification_time" required placeholder="hh:mm AM/PM" pattern="^(0[1-9]|1[0-2]):[0-5][0-9] [APap][Mm]$" title="Enter time in HH:MM AM/PM format">
-                        <button type="submit" class="btn btn-primary">Update Time</button>
-                    </form>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <!-- Form to update notification time -->
+                        <h5 class="card-title">Set Notification Time</h5>
+                        <form id="notification_time" method="POST" action="{{ url_for('notification_time') }}">
+                            <div class="form-group">
+                                <label for="notification_time">
+                                    <i class="fa-solid fa-clock"></i> Set Notification Time (HH:MM AM/PM):
+                                </label>
+                                <input type="text" class="form-control" id="notification_time" name="notification_time" required placeholder="hh:mm AM/PM" pattern="^(0[1-9]|1[0-2]):[0-5][0-9] [APap][Mm]$" title="Enter time in HH:MM AM/PM format">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Time</button>
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Form to set SMTP settings (Email and Password) -->
-                <div class="form-section">
-                    <form id="smtpForm" method="POST" action="{{ url_for('set_smtp_settings') }}">
-                        <h2>Set Admin Email Settings</h2>
-                        <label for="smtp_email"><i class="fa-solid fa-envelope"></i> Admin Email Address:</label>
-                        <input type="email" id="smtp_email" name="smtp_email" required>
-                        
-                        <label for="smtp_password"><i class="fa-solid fa-lock"></i> Admin Email Password:</label>
-                        <input type="password" id="smtp_password" name="smtp_password" required>
-                
-                        <label for="smtp_server"><i class="fa-solid fa-server"></i> SMTP Server Address:</label>
-                        <input type="text" id="smtp_server" name="smtp_server" required placeholder="smtp.tersan.com.tr">
-                
-                        <label for="smtp_port"><i class="fa-solid fa-port"></i> SMTP Port:</label>
-                        <input type="number" id="smtp_port" name="smtp_port" required placeholder="587 or 465">
-                
-                        <button type="submit" class="btn btn-primary">Update Admin Settings</button>
-                    </form>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Set Admin Email Settings</h5>
+                        <form id="smtpForm" method="POST" action="{{ url_for('set_smtp_settings') }}">
+                            <div class="form-group">
+                                <label for="smtp_email"><i class="fa-solid fa-envelope"></i> Admin Email Address:</label>
+                                <input type="email" class="form-control" id="smtp_email" name="smtp_email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="smtp_password"><i class="fa-solid fa-lock"></i> Admin Email Password:</label>
+                                <input type="password" class="form-control" id="smtp_password" name="smtp_password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="smtp_server"><i class="fa-solid fa-server"></i> SMTP Server Address:</label>
+                                <input type="text" class="form-control" id="smtp_server" name="smtp_server" required placeholder="smtp.tersan.com.tr">
+                            </div>
+                            <div class="form-group">
+                                <label for="smtp_port"><i class="fa-solid fa-port"></i> SMTP Port:</label>
+                                <input type="number" class="form-control" id="smtp_port" name="smtp_port" required placeholder="587 or 465">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Admin Settings</button>
+                        </form>
+                    </div>
                 </div>
-                
 
                 <!-- Form to update custom notification days -->
-                <div class="form-section">
-                    <form id="update_notification_days" method="POST" action="{{ url_for('update_notification_days') }}">
-                        <h2>Set Custom Notification Days Before Expiration</h2>
-                        <div id="reminderDaysContainer">
-                            <!-- Reminder day inputs will be injected here -->
-                            {% for reminder, days in settings.reminder_days.items() %}
-                                <div class="reminder-day">
-                                    <label>
-                                        <i class="fa-solid fa-calendar-days"></i> Reminder {{ loop.index }}:
-                                    </label>
-                                    <input type="number" name="reminder_days[]" min="1" required>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <button type="button" class="btn btn-secondary" id="addReminderDay">Add Another Reminder Day</button>
-                        <button type="submit" class="btn btn-primary">Update Notification Days</button>
-                    </form>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Set Custom Notification Days Before Expiration</h5>
+                        <form id="update_notification_days" method="POST" action="{{ url_for('update_notification_days') }}">
+                            <div id="reminderDaysContainer">
+                                {% for reminder, days in settings.reminder_days.items() %}
+                                    <div class="form-group">
+                                        <label>
+                                            <i class="fa-solid fa-calendar-days"></i> Reminder {{ loop.index }}:
+                                        </label>
+                                        <input type="number" class="form-control" name="reminder_days[]" min="1" required>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="btn btn-secondary" id="addReminderDay">Add Another Reminder Day</button>
+                            <button type="submit" class="btn btn-primary">Update Notification Days</button>
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Form to add email -->
-                <div class="form-section">
-                    <form id="emailForm" action="{{ url_for('add_email') }}" method="POST">
-                        <label for="newEmail">
-                            <i class="fa-solid fa-envelope"></i> Add Notification Email:
-                        </label>
-                        <input type="email" id="newEmail" name="newEmail" required>
-                        <button type="submit" class="btn btn-primary">Add Email</button>
-                    </form>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Add Notification Email</h5>
+                        <form id="emailForm" action="{{ url_for('add_email') }}" method="POST">
+                            <div class="form-group">
+                                <label for="newEmail">
+                                    <i class="fa-solid fa-envelope"></i> Add Notification Email:
+                                </label>
+                                <input type="email" class="form-control" id="newEmail" name="newEmail" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Email</button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
             <!-- Table container -->
-            <div class="table-container">
-                <!-- Display current settings in a table -->
-                <label class="settings-label"><i class="fa-solid fa-cogs"></i> Current Notification Settings</label>
-
-                <table class="settings-table">
-                    <thead>
-                        <tr>
-                            <th>Setting</th>
-                            <th>Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <i class="fa-solid fa-clock"></i> Notification Time
-                            </td>
-                            <td>{{ settings.notification_time }}</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <i class="fa-solid fa-calendar-days"></i> Reminder Days
-                            </td>
-                            <td>
-                                {% if settings.reminder_days %}
-                                    <ul>
-                                        {% for reminder, days in settings.reminder_days.items() %}
-                                            <li>
-                                                {{ days }} days before expiration
-                                                <!-- Add a delete button for each reminder day -->
-                                                <form method="POST" action="{{ url_for('delete_reminder_day') }}" style="display:inline;">
-                                                    <input type="hidden" name="reminder_key" value="{{ reminder }}">
-                                                    <button type="submit" class="btn btn-danger btn-sm">
-                                                        <i class="fa-solid fa-trash"></i> Delete
-                                                    </button>
-                                                </form>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    No reminder days set
-                                {% endif %}
-                            </td>
-                        </tr>
-                        
-                    </tbody>
-                </table>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Current Notification Settings</h5>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Setting</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><i class="fa-solid fa-clock"></i> Notification Time</td>
+                                    <td>{{ settings.notification_time }}</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fa-solid fa-calendar-days"></i> Reminder Days</td>
+                                    <td>
+                                        {% if settings.reminder_days %}
+                                            <ul>
+                                                {% for reminder, days in settings.reminder_days.items() %}
+                                                    <li>
+                                                        {{ days }} days before expiration
+                                                        <form method="POST" action="{{ url_for('delete_reminder_day') }}" style="display:inline;">
+                                                            <input type="hidden" name="reminder_key" value="{{ reminder }}">
+                                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                                <i class="fa-solid fa-trash"></i> Delete
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            No reminder days set
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
     <!-- Load Bootstrap JS and main.js -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
