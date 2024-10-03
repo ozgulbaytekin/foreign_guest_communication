@@ -136,13 +136,25 @@ def set_smtp_settings():
 
 def send_email(to_email, subject, body):
     # Load SMTP settings from the JSON file
-    with open('notification_settings.json', 'r') as f:
-        settings = json.load(f)
+    try:
+        with open('notification_settings.json', 'r') as f:
+            settings = json.load(f)
+    except FileNotFoundError:
+        print("Error: 'notification_settings.json' file not found.")
+        return
+    except json.JSONDecodeError:
+        print("Error: Failed to decode JSON from 'notification_settings.json'.")
+        return
 
-    smtp_email = settings['smtp_email']
-    smtp_password = settings['smtp_password']
-    smtp_server = settings['smtp_server']
-    smtp_port = settings['smtp_port']
+    smtp_email = settings.get('smtp_email')
+    smtp_password = settings.get('smtp_password')
+    smtp_server = settings.get('smtp_server')
+    smtp_port = settings.get('smtp_port', 587)  # Default to 587 if not specified
+
+    # Check if SMTP settings are present
+    if not smtp_email or not smtp_password:
+        print("Error: SMTP email or password is not set in notification_settings.json")
+        return
 
     # Create email
     msg = MIMEMultipart()
@@ -153,12 +165,15 @@ def send_email(to_email, subject, body):
 
     # Connect to SMTP server and send email
     try:
+        print(f"Connecting to SMTP server {smtp_server}...")
         with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()  # Start TLS for security (use if SMTP port is 587)
+            server.starttls()  # Start TLS for security
             server.login(smtp_email, smtp_password)
             server.send_message(msg)
         print("Email sent successfully.")
-    except Exception as e:
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"Authentication error: {e}")
+    except smtplib.SMTPException as e:
         print(f"Failed to send email: {e}")
 
 
@@ -195,7 +210,7 @@ def schedule_reminders():
     """Schedule reminders based on the guest data and notification settings."""
     settings = load_notification_settings()
     reminder_days = settings.get('reminder_days', {})
-    additional_emails = settings.get('emails', [])
+   
     guests = load_guests()
     now = datetime.now()
     admin_email = settings.get("smtp_email")  # Retrieve admin email from settings
@@ -218,16 +233,18 @@ def schedule_reminders():
                 if now.date() == reminder_date.date():
                     logging.info("Sending %d-day reminder to %s", days_before, guest_email)
                     
+                    # Prepare reminder message
+                    guest_message = f"Dear {guest_full_name}, your permit will expire in {days_before} days!"
+                    admin_message = f"{guest_full_name}'s permit will expire in {days_before} days."
+                    
                     # Send email to guest
-                    send_email(guest_email, f"{days_before} Days Reminder", f"Dear {guest_full_name}, your permit will expire in {days_before} days!")
+                    send_email(guest_email, f"{days_before} Days Reminder", guest_message)
                     
-                    # Send email to admin
-                    if admin_email:  # Check if admin email is set
-                        send_email(admin_email, f"Admin Notification: {days_before} Days Reminder", f"{guest_full_name}'s permit will expire in {days_before} days.")
+                    # Send email to admin if the email is set
+                    if admin_email:
+                        send_email(admin_email, f"Admin Notification: {days_before} Days Reminder", admin_message)
                     
-                    # Send email to additional email addresses
-                    for additional_email in additional_emails:
-                        send_email(additional_email, f"Notification: {days_before} Days Reminder", f"{guest_full_name}'s permit will expire in {days_before} days.")
+                 
                 else:
                     logging.debug("No email sent for reminder: %s (now: %s, reminder_date: %s)", 
                                   reminder_name, now.date(), reminder_date.date())
