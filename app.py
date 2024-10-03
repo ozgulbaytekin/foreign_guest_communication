@@ -51,6 +51,25 @@ def add_email():
     
     return redirect(url_for('notification_time'))
 
+@app.route('/delete_reminder_day', methods=['POST'])
+def delete_reminder_day():
+    reminder_key = request.form.get('reminder_key')
+
+    # Load current settings from notification_settings.json
+    with open('notification_settings.json', 'r') as f:
+        settings = json.load(f)
+
+    # Remove the reminder day from the settings
+    if reminder_key in settings['reminder_days']:
+        del settings['reminder_days'][reminder_key]
+
+    # Save the updated settings back to the JSON file
+    with open('notification_settings.json', 'w') as f:
+        json.dump(settings, f, indent=4)
+
+    flash(f'Reminder day "{reminder_key}" has been deleted.')
+    return redirect(url_for('notification_time'))
+
 
 def load_notification_settings():
     """Load notification settings from a JSON file, ensuring all expected keys are present."""
@@ -91,61 +110,56 @@ def save_notification_settings(settings):
 
 @app.route('/set_smtp_settings', methods=['POST'])
 def set_smtp_settings():
-    smtp_email = request.form['smtp_email']
-    smtp_password = request.form['smtp_password']
+    smtp_email = request.form.get('smtp_email')
+    smtp_password = request.form.get('smtp_password')
+    smtp_server = request.form.get('smtp_server')
+    smtp_port = request.form.get('smtp_port')
 
-    # Load the current notification settings
-    settings = load_notification_settings()
+    # Load current settings
+    with open('notification_settings.json', 'r') as f:
+        settings = json.load(f)
 
-    # Store SMTP email and password in the notification settings
+    # Update SMTP settings
     settings['smtp_email'] = smtp_email
     settings['smtp_password'] = smtp_password
+    settings['smtp_server'] = smtp_server
+    settings['smtp_port'] = int(smtp_port)
 
-    # Save the updated settings
-    save_notification_settings(settings)
+    # Save updated settings
+    with open('notification_settings.json', 'w') as f:
+        json.dump(settings, f, indent=4)
 
-    flash('SMTP settings updated successfully!')
+    flash('SMTP settings updated successfully.')
     return redirect(url_for('notification_time'))
 
-# Update send_email function to use dynamic SMTP credentials
-def send_email(to_email, subject, message):
-    settings = load_notification_settings()
-    sender_email = settings.get("smtp_email")
-    password = settings.get("smtp_password")
 
-    if not sender_email or not password:
-        print("SMTP email or password is not set.")
-        return
 
+def send_email(to_email, subject, body):
+    # Load SMTP settings from the JSON file
+    with open('notification_settings.json', 'r') as f:
+        settings = json.load(f)
+
+    smtp_email = settings['smtp_email']
+    smtp_password = settings['smtp_password']
+    smtp_server = settings['smtp_server']
+    smtp_port = settings['smtp_port']
+
+    # Create email
     msg = MIMEMultipart()
-    msg['From'] = sender_email
+    msg['From'] = smtp_email
     msg['To'] = to_email
     msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
 
-    msg.attach(MIMEText(message, 'plain'))
-
-    # Determine the SMTP server and port based on the email domain
-    if sender_email.endswith('@gmail.com'):
-        smtp_server = 'smtp.gmail.com'
-        smtp_port = 587
-    elif sender_email.endswith('@outlook.com') or sender_email.endswith('@hotmail.com'):
-        smtp_server = 'smtp.office365.com'
-        smtp_port = 587
-    else:
-        print("Unsupported email domain.")
-        return
-
+    # Connect to SMTP server and send email
     try:
-        print(f"Connecting to SMTP server {smtp_server}...")
         with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
-            server.login(sender_email, password)
+            server.starttls()  # Start TLS for security (use if SMTP port is 587)
+            server.login(smtp_email, smtp_password)
             server.send_message(msg)
-        print(f"Email sent to {to_email}.")
-    except smtplib.SMTPAuthenticationError as e:
-        print(f"Authentication error: {e}")
-    except smtplib.SMTPException as e:
-        print(f"Failed to send email to {to_email}: {e}")
+        print("Email sent successfully.")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
 
 
 
@@ -435,4 +449,3 @@ if __name__ == '__main__':
     scheduler_thread.start()
 
     app.run(debug=True, host='0.0.0.0', port=5004)
-
